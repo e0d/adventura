@@ -11,7 +11,9 @@
  game-graph
  [
   [:entry-hall
-   {:description "The room is carpeted and has a high ceiling with stained glass windows" :dangerous true}]
+   {:description "The room is carpeted and has a high ceiling with stained glass windows"
+    :dangerous true
+    :visited false}]
   [:salon
    {:description "Filled with comfortable furniture and shelves full of dusty books"}]
   [:study
@@ -21,48 +23,86 @@
    ]
   ]))
 
-(def game-graph
-  (uber/add-directed-edges game-graph
-                           [:entry-hall :salon {:cardinal-direction "e"}]
-                           [:salon :entry-hall {:cardinal-direction "w"}]
-                           [:entry-hall :laboratory {:cardinal-direction "s"}]
-                           [:laboratory :entry-hall {:cardinal-direction "n"}]
-                           [:salon :study {:cardinal-direction "e"}]
-                           [:study :salon {:cardinal-direction "w"}]))
+(def opposites {
+                :n :s
+                :s :n
+                :e :w
+                :w :e
+                :nw :se
+                :ne :sw
+                :se :nw
+                :sw :ne
+                })
+
+(defn gen-edges
+  [node1 node2 node1->node2]
+  (let
+      [
+       cardinal (if (keyword? node1->node2) node1->node2 (keyword node1->node2))
+       opposite (cardinal opposites)]
+    [
+     [node1 node2 {:cardinal-direction cardinal}]
+     [node2 node1 {:cardinal-direction opposite}]
+     ]
+    ))
+
+
+(defn link-rooms
+  [game-graph node1 node2 cardinal]
+  (let [
+        [a b] (gen-edges node1 node2 cardinal)
+        ]
+    (uber/add-directed-edges game-graph
+                             a
+                             b
+                             )))
+
+
+(defn initialize-player
+  [g start]
+  (->
+   g
+   (uber/add-nodes :player)
+   (uber/add-edges [:player start {:type :location}])))
+
 
 (def game-graph
-  (uber/add-nodes game-graph
-                  :player
-                  ))
+  (->
+   game-graph
+   (link-rooms :entry-hall :salon :e)
+   (link-rooms :entry-hall :laboratory :s)
+   (link-rooms :study :salon :e)
+   (initialize-player :salon)
+   ))
 
-(def game-graph
-  (uber/add-edges game-graph
-                  [:player :entry-hall {:type :location}]))
+(defn get-player-location-edge
+  [g]
+  (uber/find-edge g {:src :player :type :location})
+  )
+
+(defn player-location-node
+  [game-graph]
+  (let
+      [edge (get-player-location-edge game-graph)]
+    (second (uber/node-with-attrs game-graph (:dest edge)))))
 
 (defn move-player
   [destination]
   (let
-      [current-location-edge
-       (uber/find-edge game-graph {:src :player :type :location})
+      [current-location-edge (get-player-location-edge game-graph)
        ]
     (-> game-graph
-      (uber/add-edges [:player destination])
-      (uber/remove-edges current-location-edge)
+        (uber/remove-edges current-location-edge)
+        (uber/add-edges [:player destination {:type :location}])
       )))
 
 
-(uber/viz-graph (move-player :laboratory))
+(defn print-story
+  [g]
+  (let
+      [location (player-location-node g)]
+    (prn (:description location))))
 
-(uber/pprint game-graph)
 
 (uber/viz-graph game-graph)
 
-(uber/node-with-attrs game-graph :entry-hall)
-
-(:description (second (uber/node-with-attrs game-graph :entry-hall)))
-
-(map #(uber/node-with-attrs game-graph %) (map :dest (uber/out-edges game-graph :entry-hall)))
-
-
-
-(uber/out-edges game-graph :entry-hall)

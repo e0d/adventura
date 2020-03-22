@@ -5,6 +5,7 @@
             :url "https://www.eclipse.org/legal/epl-2.0/"}
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [ubergraph "0.8.2"]
+                 [jline/jline "2.14.6"]
                  ]
   :java-cmd "/usr/java/latest/bin/java"
   :repl-options {:init-ns adventura.core})

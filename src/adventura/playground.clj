@@ -4,6 +4,90 @@
    )
   )
 
+
+(def my-vector [1 2 3])
+
+;; Destructuring
+
+(let
+    [
+     [a b c] my-vector
+     ]
+  (prn c))
+
+
+(type my-vector)
+
+(defn add-list
+  [l]
+  (reduce + l))
+
+(add-list my-vector)
+
+(conj my-vector 9)
+
+(prn my-vector)
+
+(conj my-vector )
+
+(def ten 10)
+
+(def my-vector (conj my-vector 9))
+
+(conj my-vector ten)
+
+ (def nested-map
+  {:a :keyword
+   "foo" 1
+   :b 2
+   :c {:d {:e 1 :f 2 :g 3}}
+   })
+
+("foo" nested-map)
+
+((keyword "foo") nested-map)
+
+(keyword "foo")
+
+(get nested-map "foo")
+
+(get nested-map :b)
+
+(:b nested-map)
+
+(:c nested-map)
+
+(clojure.pprint/pprint nested-map)
+
+(def sentence "The quick brown fox jumps over the lazy dog")
+
+(def words
+(clojure.string/split sentence #" "))
+
+
+(println sentence)
+
+
+(type words)
+(count words)
+
+(nth words 0)
+
+(map makeywords words)
+
+(makeywords (first words))
+(makeywords (second words))
+...
+
+
+(defn makeywords
+  [text]
+ (println text))
+
+(makeywords "foo")
+
+
+
 (defn foo
   "I don't do a whole lot."
   [x]
@@ -80,3 +164,20 @@
 
 ;; "foobar"
 ;; "foo bar"
+
+
+(def input "This is my input")
+
+;; types of things
+
+(def n 1)
+(def s "this is a string")
+(def v [1 2 3 4])
+(def l '(1 2 3 4))
+(def m {:a "foo" :b "bar"})
+
+(type m)
+
+(def v (conj v 1))
+
+(prn v)
